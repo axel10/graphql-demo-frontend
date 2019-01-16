@@ -1,0 +1,7 @@
+overwrite: true
+schema: "http://localhost:2537/graphql"
+generates:
+  ./src/types.d.ts:
+    plugins:
+      - typescript-common
+      - typescript-server
