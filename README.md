@@ -1,5 +1,12 @@
-react-tieba
-=========================
+# graphql-demo-frontend
 
-百度贴吧的react+dva.js实现。
-在线演示地址：[https://tieba.axel10.com](https://tieba.axel10.com)
+
+Graphql + apollo frontend demo project base on react   
+[backend project](https://github.com/axel10/graphql-demo-backend)
+
+###usage
+after launch backend server,run:
+```
+npm install
+npm run dev
+```
