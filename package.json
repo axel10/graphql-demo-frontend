@@ -1,7 +1,7 @@
 {
   "name": "graphql-demo-frontend",
   "description": "Graphql + apollo front-end demo project",
-  "version": "0.1",
+  "version": "0.1.0",
   "private": false,
   "scripts": {
     "dev": "webpack-dev-server --progress --colors --config build/webpack.dev.js",
