@@ -33,14 +33,6 @@ module.exports = function() {
         ISDEV: JSON.stringify(false)
       })
     ],
-    externals: {
-      "react-dom": "ReactDOM",
-      "react": "React",
-      "lodash": "_",
-      "react-router": "ReactRouter",
-      "react-router-dom": "ReactRouterDOM",
-      "swiper": "Swiper"
-    },
     mode: "production"
   });
 };

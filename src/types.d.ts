@@ -10,6 +10,8 @@ export interface PlayerInput {
   weightLbs?: Maybe<number>
 
   birthDate?: Maybe<Date>
+
+  id?: Maybe<number>
 }
 
 /** The `Date` scalar type represents a timestamp provided in UTC. `Date` expects timestamps to be formatted in accordance with the [ISO-8601](https://en.wikipedia.org/wiki/ISO_8601) standard. */
@@ -25,7 +27,7 @@ export type Decimal = any
 // Types
 // ====================================================
 
-export interface NhlStatsQuery {
+export interface NhlQuery {
   player?: Maybe<PlayerType>
 
   randomPlayer?: Maybe<PlayerType>
@@ -40,11 +42,11 @@ export interface PlayerType {
 
   name?: Maybe<string>
 
-  birthPlace: string
+  birthPlace?: Maybe<string>
 
-  height: string
+  height?: Maybe<string>
 
-  weightLbs: number
+  weightLbs?: Maybe<number>
 
   birthDate?: Maybe<string>
   /** Player's skater stats */
@@ -81,20 +83,30 @@ export interface TeamType {
   abbreviation: string
 }
 
-export interface CreatePlayerMutation {
+export interface NhlMutation {
   createPlayer?: Maybe<PlayerType>
+
+  editPlayer?: Maybe<PlayerType>
+
+  deletePlayer?: Maybe<boolean>
 }
 
 // ====================================================
 // Arguments
 // ====================================================
 
-export interface PlayerNhlStatsQueryArgs {
+export interface PlayerNhlQueryArgs {
   id?: Maybe<number>
 }
 export interface SkaterSeasonStatsPlayerTypeArgs {
   id?: Maybe<number>
 }
-export interface CreatePlayerCreatePlayerMutationArgs {
+export interface CreatePlayerNhlMutationArgs {
   player: PlayerInput
+}
+export interface EditPlayerNhlMutationArgs {
+  player: PlayerInput
+}
+export interface DeletePlayerNhlMutationArgs {
+  id: number
 }

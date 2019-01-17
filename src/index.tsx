@@ -1,149 +1,46 @@
-import ApolloClient from 'apollo-boost'
-import gql from 'graphql-tag'
-import cloneDeep from 'lodash/cloneDeep'
 import React from 'react'
-import { ApolloProvider, Mutation, MutationFunc, OperationVariables, Query } from 'react-apollo'
+import { ApolloProvider, Query } from 'react-apollo'
 import ReactDOM from 'react-dom'
-import { PlayerInput, PlayerType } from 'src/types'
-import { FormUtils, getDescriptor } from 'src/utils/utils'
+import { Create } from 'src/components/createPlayerForm'
+import { GET_PLAYER } from 'src/querys/player'
+import { PlayerType } from 'src/types'
+import { client } from 'src/utils/apolloClient'
+import { showEditPlayerModal } from 'src/utils/utils'
+import './base.less'
 
-const client = new ApolloClient({
-  uri: 'http://localhost:2537/graphql'
-})
+class PlayerList extends React.Component {
 
-interface IState {
-  form: PlayerInput
-}
-
-const initState: IState = {
-  form: { name: '' }
-}
-
-const formUtils = new FormUtils<IState>({
-  initState,
-  descriptor: {
-    form:
-      {
-        name: { type: 'string', require: true },
-        height: getDescriptor({ required: true, isNumber: true })
-        /*        height (rule, value, callback) {
-                  const errs = []
-                  if (!/^[0-9]+$/.test(value)) {
-                    errs.push(new Error('请输入数字'))
-                  }
-                  callback(errs)
-                }*/
-      }
-  }
-})
-
-class Create extends React.Component <any, IState> {
-
-  public state = cloneDeep(initState)
-
-  public bindField = () => (e) => {
-    console.log('change')
-    const target = e.target as HTMLInputElement
-    const val = target.value
-    const key = target.name
-    const formName = target.form.getAttribute('name')
-    const formData = this.state[formName]
-
-    const obj: any = {
-      [formName]: {
-        ...formData,
-        [key]: val
-      }
-    }
-    console.log(obj)
-    this.setState(obj, () => {
-      console.log(this.state)
-    })
-  }
-
-  public resetForm = () => (e: React.FormEvent) => {
-    const form = e.target as HTMLFormElement
-    const formName = form.getAttribute('name')
-    const { state } = this
-    state[formName] = cloneDeep(initState[formName])
-    this.setState(state)
-  }
-
-  public handleSubmit = (createPlayer: MutationFunc, data) => (e: React.FormEvent) => {
-    e.preventDefault()
-    const form = e.target as HTMLFormElement
-    formUtils.validate(e.target as HTMLFormElement).then(o => {
-      /*      createPlayer({ variables: { player: formUtils.state[form.getAttribute('name')] } }).then(o => {
-              console.log(o)
-            })*/
-      console.log('pass')
-    }).catch((e) => {
-      console.log(e)
-    })
+  public showEditModal = (player: PlayerType) => () => {
+    showEditPlayerModal(player)
   }
 
   public render () {
     return (
       <div>
-        <Mutation mutation={gql`
-mutation ($player: PlayerInput!) {
-  createPlayer(player: $player) {
-    id
-    name
-  }
-}
-  `}>
+        <Query query={GET_PLAYER}>
           {
-            (createPlayer, { data }) => (
-              <form name='form' onReset={formUtils.resetForm} onSubmit={this.handleSubmit(createPlayer, data)}>
-                <div>
-                  姓名
-                  <input type='text' name='name' onChange={formUtils.bindField}/>
+            ({ loading, error, data }) => {
+              if (loading) return <p>Loading...</p>
+              if (error) return <p>Error :(</p>
+              const players: PlayerType[] = data.players
+              console.log(players)
+              return players.map((o, i) => (
+                <div key={i} onClick={this.showEditModal(o)}>
+                  {o.name} {o.birthDate}
                 </div>
-                <div>
-                  身高
-                  <input type='number' name='height' onChange={formUtils.bindField}/>
-                </div>
-                <button type='submit'>提交</button>
-              </form>
-            )
+              ))
+            }
           }
-        </Mutation>
+        </Query>
       </div>
     )
   }
 }
 
-const Q = () => (
-  <Query query={gql`
-query{
-  players{
-    name,
-    birthDate
-  }
-}
-`}>
-    {
-      ({ loading, error, data }) => {
-        if (loading) return <p>Loading...</p>
-        if (error) return <p>Error :(</p>
-
-        const players: PlayerType[] = data.players
-        return players.map((o, i) => (
-          <div key={i}>
-            {o.name}
-            {o.birthDate}
-          </div>
-        ))
-      }
-    }
-  </Query>
-)
-
 ReactDOM.render(
   <div>
     <ApolloProvider client={client}>
-      <Q/>
+      <PlayerList/>
       <Create/>
     </ApolloProvider>
   </div>, document.getElementById('root'))

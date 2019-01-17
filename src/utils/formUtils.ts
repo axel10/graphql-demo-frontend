@@ -1,12 +1,6 @@
+import Schema from 'async-validator'
 import cloneDeep from 'lodash/cloneDeep'
 import React from 'react'
-import Schema from 'async-validator'
-
-/*const isNumber = Symbol('isNumber')
-const required = Symbol('required')
-export const Rules = {
-  isNumber, required
-}*/
 
 interface IRules {
   isNumber?: boolean
