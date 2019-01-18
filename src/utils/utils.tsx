@@ -47,3 +47,9 @@ function omitTypename (key, val) {
 export function removeTypename (obj) {
   return JSON.parse(JSON.stringify(obj), omitTypename)
 }
+
+export function HOF (fn, ...args) {
+  return () => {
+    fn.apply(this, args)
+  }
+}
