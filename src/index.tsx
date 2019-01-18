@@ -1,9 +1,8 @@
-import gql from 'graphql-tag'
 import React from 'react'
 import { ApolloProvider, Query } from 'react-apollo'
 import ReactDOM from 'react-dom'
 import { Create } from 'src/components/createPlayerForm'
-import { GET_PLAYER } from 'src/querys/player'
+import { DELETE_PLAYER, GET_PLAYERS } from 'src/querys/player'
 import { NhlMutation, NhlQuery, PlayerType } from 'src/types'
 import { client } from 'src/utils/apolloClient'
 import { showEditPlayerModal } from 'src/utils/utils'
@@ -17,19 +16,15 @@ class PlayerList extends React.Component {
 
   public deletePlayer = (id) => (e: React.MouseEvent) => {
     e.stopPropagation()
-    client.mutate<boolean>({
-      mutation: gql`
-        mutation NHLMutation($id:Int!){
-          deletePlayer(id:$id)
-        }
-      `,
+    client.mutate({
+      mutation: DELETE_PLAYER,
       variables: {
         id
       },
       update (cache, { data }: { data: NhlMutation }) {
         console.log(data)
-        const { players } = cache.readQuery({ query: GET_PLAYER }) as NhlQuery
-        cache.writeQuery({ query: GET_PLAYER, data: { players: players.filter(item => item.id !== id) } })
+        const { players } = cache.readQuery({ query: GET_PLAYERS }) as NhlQuery
+        cache.writeQuery({ query: GET_PLAYERS, data: { players: players.filter(item => item.id !== id) } })
       }
     })
   }
@@ -37,7 +32,7 @@ class PlayerList extends React.Component {
   public render () {
     return (
       <div>
-        <Query query={GET_PLAYER}>
+        <Query query={GET_PLAYERS}>
           {
             ({ loading, error, data }) => {
               if (loading) return <p>Loading...</p>

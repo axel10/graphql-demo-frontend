@@ -1,4 +1,5 @@
 import gql from 'graphql-tag'
+import { PlayerFragement } from 'src/utils/graphql/fragements'
 
 export const CREATE_PLAYER = gql`
   mutation ($player: PlayerInput!) {
@@ -8,7 +9,7 @@ export const CREATE_PLAYER = gql`
   }
 `
 
-export const GET_PLAYER = gql`query{
+export const GET_PLAYERS = gql`query{
   players{
     name,
     birthDate,
@@ -22,4 +23,19 @@ export const EDIT_PLAYER = gql`
       id name birthDate
     }
   }
+`
+
+export const DELETE_PLAYER = gql`
+  mutation NHLMutation($id:Int!){
+    deletePlayer(id:$id)
+  }
+`
+
+export const GET_PLAYER = gql`
+  query ($id:Int!){
+    player(id:$id){
+      ...PlayerFragment
+    }
+  }
+  ${PlayerFragement}
 `

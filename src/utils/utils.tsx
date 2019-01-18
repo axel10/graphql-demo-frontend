@@ -3,20 +3,13 @@ import React from 'react'
 import { ApolloProvider } from 'react-apollo'
 import ReactDOM from 'react-dom'
 import EditPlayerModal from 'src/components/editPlayerModal'
+import { GET_PLAYER } from 'src/querys/player'
 import { PlayerType } from 'src/types'
 import { client } from 'src/utils/apolloClient'
-import { PlayerFragement } from 'src/utils/graphql/fragements'
 
 export function showEditPlayerModal (player: PlayerType) {
   client.query<{ player: PlayerType }>({
-    query: gql`
-      query ($id:Int!){
-        player(id:$id){
-          ...PlayerFragment
-        }
-      }
-      ${PlayerFragement}
-    `,
+    query: GET_PLAYER,
     variables: {
       id: player.id
     }
@@ -37,7 +30,6 @@ export function showEditPlayerModal (player: PlayerType) {
     ReactDOM.unmountComponentAtNode(container)
     document.body.removeChild(container)
   }
-
 }
 
 function omitTypename (key, val) {

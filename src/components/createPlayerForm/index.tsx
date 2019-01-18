@@ -1,7 +1,6 @@
-import cloneDeep from 'lodash/cloneDeep'
 import React from 'react'
 import { Mutation, MutationFunc } from 'react-apollo'
-import { CREATE_PLAYER, GET_PLAYER } from 'src/querys/player'
+import { CREATE_PLAYER, GET_PLAYERS } from 'src/querys/player'
 import { NhlMutation, NhlQuery, PlayerInput } from 'src/types'
 import { FormUtils } from 'src/utils/formUtils'
 import styles from './style.less'
@@ -18,20 +17,18 @@ const formUtils = new FormUtils<IState>({
   initState
 })
 
-export class Create extends React.Component <any, IState> {
-
-  public state = cloneDeep(initState)
+export class Create extends React.Component {
 
   public handleCreateSubmit = (createPlayer: MutationFunc, data) => (e: React.FormEvent) => {
     e.preventDefault()
     const form = e.target as HTMLFormElement
-    createPlayer({ variables: { player: formUtils.state[form.getAttribute('name')] } })
+    createPlayer({ variables: { player: formUtils.state[form.getAttribute('name')] } }) // 取出表单数据并提交
   }
 
-  public handleUpdate = (cache, { data }: { data: NhlMutation }) => {
+  public handleUpdate = (cache, { data }: { data: NhlMutation }) => { // 服务器相应成功后更新本地数据
     const createdPlayer = data.createPlayer
-    const { players } = cache.readQuery({ query: GET_PLAYER }) as NhlQuery
-    cache.writeQuery({ query: GET_PLAYER, data: { players: players.concat(createdPlayer) } })
+    const { players } = cache.readQuery({ query: GET_PLAYERS }) as NhlQuery // 先读取本地数据
+    cache.writeQuery({ query: GET_PLAYERS, data: { players: players.concat(createdPlayer) } }) // 写入处理后的数据
   }
 
   public render () {
@@ -43,7 +40,7 @@ export class Create extends React.Component <any, IState> {
         >
           {
             (createPlayer, { data }) => (
-              <form name='form' onReset={formUtils.resetForm} onSubmit={this.handleCreateSubmit(createPlayer, data)}>
+              <form name='form' onSubmit={this.handleCreateSubmit(createPlayer, data)}>
                 <div>
                   <label>
                     姓名

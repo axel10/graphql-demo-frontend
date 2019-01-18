@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { Mutation, MutationFunc } from 'react-apollo'
-import { EDIT_PLAYER, GET_PLAYER } from 'src/querys/player'
-import { NhlMutation, NhlQuery, PlayerInput, PlayerType } from 'src/types'
+import { EDIT_PLAYER, GET_PLAYERS } from 'src/querys/player'
+import { NhlQuery, PlayerInput, PlayerType } from 'src/types'
+import { FormUtils } from 'src/utils/formUtils'
 import { removeTypename } from 'src/utils/utils'
-import { FormUtils } from '../../utils/formUtils'
 import styles from './style.less'
 
 interface IState {
@@ -28,20 +28,16 @@ export default class EditPlayerModal extends React.Component<{ player: PlayerTyp
   }
 
   public handleEditSubmit = (editPlayer: MutationFunc, data) => (e: React.FormEvent) => {
-    const player = removeTypename(formUtils.state[this.formName])
-    editPlayer({ variables: { player } }).then(o => {
-      console.log('edit done')
-    }).catch(err => {
-      console.log(err)
-    })
+    const player = removeTypename(formUtils.state[this.formName]) // 删除apollo为了进行状态管理而添加的__typename字段，否则报错
+    editPlayer({
+      variables: { player },
+      update (cache) {
+        const { players } = cache.readQuery({ query: GET_PLAYERS }) as NhlQuery
+        Object.assign(players.find(o => o.id === player.id), player) // 提交修改
+        cache.writeQuery({ query: GET_PLAYERS, data: { players } }) // 写入
+      }
+    }) // 提交
     this.props.onCancel()
-  }
-
-  public handleUpdate = (cache, { data }: { data: NhlMutation }) => {
-    const editedPlayer = data.editPlayer
-    const { players } = cache.readQuery({ query: GET_PLAYER }) as NhlQuery
-    Object.assign(players.find(o => o.id === editedPlayer.id), editedPlayer)
-    cache.writeQuery({ query: GET_PLAYER, data: { players } })
   }
 
   public render () {
@@ -52,7 +48,6 @@ export default class EditPlayerModal extends React.Component<{ player: PlayerTyp
       <div className={styles.wrap}>
         <div className='form-content'>
           <Mutation mutation={EDIT_PLAYER}
-                    update={this.handleUpdate}
           >
             {
               (editPlayer, { data }) => {
